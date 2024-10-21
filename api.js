@@ -1,7 +1,10 @@
 import axios from "axios";
 
-const API_KEY = "ef4ca97c";
-const BASE_URL = "http://www.omdbapi.com";
+// const API_KEY = "ef4ca97c";
+// const API_KEY = process.env.OMDB_API_KEY;
+const API_KEY = process.env.EXPO_PUBLIC_OMDB_API_KEY;
+// const BASE_URL = "http://www.omdbapi.com";
+const BASE_URL = process.env.EXPO_PUBLIC_OMDB_BASE_URL;
 
 export const fetchMovies = async () => {
   const currentYear = new Date().getFullYear();

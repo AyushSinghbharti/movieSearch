@@ -2,7 +2,6 @@ import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import React from "react";
 
 const ShortlistScreen = ({ item, onRemove }) => {
-  console.log(item);
   return (
     <View style={styles.container}>
       <Image source={{ uri: item.Poster }} style={styles.image} />
