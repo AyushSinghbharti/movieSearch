@@ -21,6 +21,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "permissions": ["android.permission.INTERNET"],
       "package": "com.ayushsingh.internApp"
     },
     "web": {
