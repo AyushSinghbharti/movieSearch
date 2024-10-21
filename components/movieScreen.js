@@ -1,24 +1,16 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Pressable,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, Text, View, Image, Pressable, Dimensions } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { addMovie } from "../store";
-import DetailScreen from "./DetailScreen";
 
-const MovieScreen = ({ item, numColumns, navigation }) => {
+const MovieScreen = ({ item, numColumns, navigation }) => { 
   const dispatch = useDispatch();
   const shortlisted = useSelector((state) => state.shortlisted);
   const isShortlisted = shortlisted.some(
     (movie) => movie.imdbID === item.imdbID
   );
 
-  const AddinList = ({}) => {
+  const AddinList = () => {
     if (!isShortlisted) {
       dispatch(addMovie(item));
     } else {
@@ -29,7 +21,7 @@ const MovieScreen = ({ item, numColumns, navigation }) => {
   return (
       <Pressable
         onPress={() => {
-          <DetailScreen imdbID={item.imdbID} />
+          navigation.navigate("Details", { imdbID: item.imdbID });
         }}
         style={[
           styles.movieBox,
