@@ -8,7 +8,7 @@ const shortlistedSlice = createSlice({
             state.push(action.payload);
         },
         removeMovie: (state, action) => {
-            return state.filter(movie => movie.id !== action.payload.id);
+            return state.filter(movie => movie.imdbID !== action.payload.imdbID);
         }
     }
 });

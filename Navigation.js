@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import MovieList from "./screens/MovieList";
 import ShortlistedMovies from "./screens/ShortlistedMovies";
 import Feather from "@expo/vector-icons/Feather";
+import DetailScreen from "./components/DetailScreen";
 
 const Tab = createBottomTabNavigator();
 

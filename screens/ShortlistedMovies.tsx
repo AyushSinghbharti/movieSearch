@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, Button, FlatList, Image } from "react-native";
+import { View, Text, FlatList, StyleSheet, StatusBar } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { removeMovie } from "../store";
+import ShortlistScreen from "../components/shortlistedScreen";
 
 export default function ShortlistedMovies() {
   const dispatch = useDispatch();
@@ -12,26 +13,22 @@ export default function ShortlistedMovies() {
   }
 
   return (
-    <FlatList
-      data={shortlisted}
-      keyExtractor={(item) => item.imdbID}
-      renderItem={({ item }) => (
-        <View
-          style={{ margin: 10, flexDirection: "row", alignItems: "center" }}
-        >
-          <Image
-            source={{ uri: item.Poster }}
-            style={{ width: 100, height: 150, marginRight: 10 }}
-          />
-          <View>
-            <Text style={{ fontWeight: "bold" }}>{item.Title}</Text>
-            <Button
-              title="Remove"
-              onPress={() => dispatch(removeMovie(item))}
-            />
-          </View>
-        </View>
-      )}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={shortlisted}
+        keyExtractor={(item) => item.imdbID}
+        renderItem={({ item }) => (
+          <ShortlistScreen item={item} onRemove={() => dispatch(removeMovie(item))} />
+        )}
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container:{
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 30,
+  }
+})

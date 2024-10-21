@@ -9,14 +9,11 @@ import {
   Dimensions,
 } from "react-native";
 import { useQuery } from "react-query";
-import { useDispatch } from "react-redux";
 import { fetchMovies, SearchMovies } from "../api";
-import { addMovie } from "../store";
-import movieScreen from "../components/movieScreen";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import MovieScreen from "../components/movieScreen";
 
-export default function MovieList() {
-  const dispatch = useDispatch();
+export default function MovieList({ navigation }) {
   const [text, onChangeText] = useState("");
   const [numColumns, setNumColumns] = useState(3);
   const [screenKey, setScreenKey] = useState("initial");
@@ -36,7 +33,6 @@ export default function MovieList() {
     updateLayout();
   }, []);
 
-  // Handle search query
   const seachQuery = async () => {
     setLoading(true);
     if (text.trim() === "") {
@@ -79,9 +75,7 @@ export default function MovieList() {
           data={result}
           keyExtractor={(item) => item.imdbID}
           numColumns={numColumns}
-          renderItem={({ item }) =>
-            movieScreen(item, numColumns, () => dispatch(addMovie(item)))
-          }
+          renderItem={({ item }) => <MovieScreen item={item} numColumns={numColumns} navigation={navigation} />}
         />
       )}
     </View>
