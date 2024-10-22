@@ -12,6 +12,8 @@ import { useQuery } from "react-query";
 import { fetchMovies, SearchMovies } from "../api";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MovieScreen from "../components/movieScreen";
+import { Skeleton } from "moti/skeleton";
+import LoadingScreen from "../components/loadingScreen";
 
 export default function MovieList({ navigation }) {
   const [text, onChangeText] = useState("");
@@ -48,8 +50,7 @@ export default function MovieList({ navigation }) {
     setResult(movies);
   }, [movies]);
 
-  if (loading || isLoading) return <Text>Loading...</Text>;
-  if (error) return <Text>Error loading movies</Text>;
+  if (error) return <Text> Some Error Occured Please try Again!!! </Text>;
 
   return (
     <View style={styles.container}>
@@ -67,15 +68,23 @@ export default function MovieList({ navigation }) {
           onPress={seachQuery}
         />
       </View>
-      {!result ? (
-        <Text>No Movie Founded</Text>
+      {isLoading || loading ? (
+        <LoadingScreen />
+      ) : !result ? (
+        <Text>No Movie Found</Text>
       ) : (
         <FlatList
           key={screenKey}
           data={result}
           keyExtractor={(item) => item.imdbID}
           numColumns={numColumns}
-          renderItem={({ item }) => <MovieScreen item={item} numColumns={numColumns} navigation={navigation} />}
+          renderItem={({ item }) => (
+            <MovieScreen
+              item={item}
+              numColumns={numColumns}
+              navigation={navigation}
+            />
+          )}
         />
       )}
     </View>

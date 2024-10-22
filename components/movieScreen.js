@@ -1,9 +1,18 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, Pressable, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { addMovie } from "../store";
+import { Skeleton } from "moti/skeleton";
+import { LinearGradient } from "expo-linear-gradient";
 
-const MovieScreen = ({ item, numColumns, navigation }) => { 
+const MovieScreen = ({ item, numColumns, navigation}) => {
   const dispatch = useDispatch();
   const shortlisted = useSelector((state) => state.shortlisted);
   const isShortlisted = shortlisted.some(
@@ -19,34 +28,34 @@ const MovieScreen = ({ item, numColumns, navigation }) => {
   };
 
   return (
-      <Pressable
-        onPress={() => {
-          navigation.navigate("Details", { imdbID: item.imdbID });
-        }}
-        style={[
-          styles.movieBox,
-          { width: Dimensions.get("window").width / numColumns - 20 },
-        ]}
-      >
-        <Image
-          source={{ uri: item.Poster }}
-          style={styles.moviePoster}
-          resizeMode="cover"
-        />
-        <Text style={styles.movieTitle}>{item.Title}</Text>
-        {isShortlisted ? (
-          <Pressable
-            onPress={AddinList}
-            style={[styles.button, { backgroundColor: "grey" }]}
-          >
-            <Text style={styles.buttonText}>Already in List</Text>
-          </Pressable>
-        ) : (
-          <Pressable onPress={AddinList} style={styles.button}>
-            <Text style={styles.buttonText}>Add</Text>
-          </Pressable>
-        )}
-      </Pressable>
+    <Pressable
+      onPress={() => {
+        navigation.navigate("Details", { imdbID: item.imdbID });
+      }}
+      style={[
+        styles.movieBox,
+        { width: Dimensions.get("window").width / numColumns - 20 },
+      ]}
+    >
+      <Image
+        source={{ uri: item.Poster }}
+        style={styles.moviePoster}
+        resizeMode="cover"
+      />
+      <Text style={styles.movieTitle}>{item.Title}</Text>
+      {isShortlisted ? (
+        <Pressable
+          onPress={AddinList}
+          style={[styles.button, { backgroundColor: "grey" }]}
+        >
+          <Text style={styles.buttonText}>Already in List</Text>
+        </Pressable>
+      ) : (
+        <Pressable onPress={AddinList} style={styles.button}>
+          <Text style={styles.buttonText}>Add</Text>
+        </Pressable>
+      )}
+    </Pressable>
   );
 };
 
