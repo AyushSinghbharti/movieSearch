@@ -35,8 +35,6 @@ const LoadingScreen = ({ num }) => {
         >
           <View
             style={{
-              width: "100%",
-              height: height * 0.7,
               marginBottom: 10,
               backgroundColor: "#fff",
               shadowColor: "#000",
@@ -50,26 +48,7 @@ const LoadingScreen = ({ num }) => {
           >
             <Skeleton
               show
-              height={height * 0.7}
-              width="100%"
-              {...SkeletonCommonProps}
-            />
-          </View>
-          <View
-            style={{
-              backgroundColor: "#fff",
-              shadowColor: "#000",
-              shadowOpacity: 0.2,
-              shadowRadius: 5,
-              shadowOffset: { width: 0, height: 3 },
-              elevation: 5,
-              borderRadius: 15,
-              overflow: "hidden",
-            }}
-          >
-            <Skeleton
-              show
-              height={height * 0.3}
+              height={height * 2 / 3}
               width="100%"
               {...SkeletonCommonProps}
             />
@@ -93,6 +72,7 @@ const LoadingScreen = ({ num }) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
