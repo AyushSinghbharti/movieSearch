@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  Animated,
 } from "react-native";
 import { useQuery } from "react-query";
 import { fetchMovies, SearchMovies } from "../api";
@@ -73,16 +74,17 @@ export default function MovieList({ navigation }) {
       ) : !result ? (
         <Text>No Movie Found</Text>
       ) : (
-        <FlatList
+        <Animated.FlatList
           key={screenKey}
           data={result}
           keyExtractor={(item) => item.imdbID}
           numColumns={numColumns}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <MovieScreen
               item={item}
               numColumns={numColumns}
               navigation={navigation}
+              index = {index}
             />
           )}
         />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,10 +9,14 @@ import {
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { addMovie } from "../store";
-import { Skeleton } from "moti/skeleton";
-import { LinearGradient } from "expo-linear-gradient";
+import Animated, {
+  Easing,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
-const MovieScreen = ({ item, numColumns, navigation}) => {
+const MovieScreen = ({ item, numColumns, index, navigation }) => {
   const dispatch = useDispatch();
   const shortlisted = useSelector((state) => state.shortlisted);
   const isShortlisted = shortlisted.some(
@@ -27,22 +31,76 @@ const MovieScreen = ({ item, numColumns, navigation}) => {
     }
   };
 
+  // Animation Part
+  const svImage = useSharedValue(0);
+  const translateYImage = useSharedValue(100);
+  const svText = useSharedValue(0);
+  const translateYText = useSharedValue(50);
+
+  useEffect(() => {
+    const imageDuration = 300; 
+    const imageDelay = index * 150;
+
+    svImage.value = withTiming(1, {
+      duration: imageDuration + imageDelay,
+      easing: Easing.inOut(Easing.quad),
+      reduceMotion: true,
+    });
+
+    translateYImage.value = withTiming(0, {
+      duration: imageDuration + imageDelay,
+      easing: Easing.inOut(Easing.quad),
+      reduceMotion: true,
+    });
+
+    const textDuration = 500;
+    const textDelay = index * 200;
+
+    svText.value = withTiming(1, {
+      duration: textDuration + textDelay,
+      easing: Easing.inOut(Easing.quad),
+      reduceMotion: true,
+    });
+
+    translateYText.value = withTiming(0, {
+      duration: textDuration + textDelay,
+      easing: Easing.inOut(Easing.quad),
+      reduceMotion: true,
+    });
+  }, []);
+
+  const animatedImageStyle = useAnimatedStyle(() => {
+    return {
+      opacity: svImage.value,
+      transform: [{ translateY: translateYImage.value }],
+    };
+  });
+
+  const animatedTextStyle = useAnimatedStyle(() => {
+    return {
+      opacity: svText.value,
+      transform: [{ translateY: translateYText.value }],
+    };
+  });
+
   return (
     <Pressable
-      onPress={() => {
-        navigation.navigate("Details", { imdbID: item.imdbID });
-      }}
       style={[
         styles.movieBox,
         { width: Dimensions.get("window").width / numColumns - 20 },
       ]}
+      onPress={() => {
+        navigation.navigate("Details", { imdbID: item.imdbID });
+      }}
     >
-      <Image
+      <Animated.Image
         source={{ uri: item.Poster }}
-        style={styles.moviePoster}
+        style={[styles.moviePoster, animatedImageStyle]}
         resizeMode="cover"
       />
-      <Text style={styles.movieTitle}>{item.Title}</Text>
+      <Animated.Text style={[styles.movieTitle, animatedTextStyle]}>
+        {item.Title}
+      </Animated.Text>
       {isShortlisted ? (
         <Pressable
           onPress={AddinList}
