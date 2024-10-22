@@ -1,53 +1,34 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-  Dimensions,
-} from "react-native";
-import { FetchDetail } from "../api";
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, FlatList, Dimensions, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming, withSpring, interpolate } from "react-native-reanimated";
+import { FetchDetail } from "../api";
 import LoadingScreen from "../components/loadingScreen";
-import Animated, {
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  withSpring,
-  interpolate,
-} from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 const Dot = ({ index, scrollX }) => {
-  const dotAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollX.value,
-      [(index - 1) * width, index * width, (index + 1) * width],
-      [0.3, 1, 0.3],
-      { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-    );
+  const dotStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollX.value, [(index - 1) * width, index * width, (index + 1) * width], [0.3, 1, 0.3], "clamp"),
+    transform: [{ scale: interpolate(scrollX.value, [(index - 1) * width, index * width, (index + 1) * width], [0.8, 1.2, 0.8], "clamp") }],
+  }));
 
-    const scale = interpolate(
-      scrollX.value,
-      [(index - 1) * width, index * width, (index + 1) * width],
-      [0.8, 1.2, 0.8],
-      { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-    );
-
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
-  });
-
-  return <Animated.View style={[styles.dot, dotAnimatedStyle]} />;
+  return <Animated.View style={[styles.dot, dotStyle]} />;
 };
+
+const MovieInfo = ({ label, value, isPlot }) => (
+  <View style={[styles.infoContainer, isPlot && styles.plotContainer]}>
+    <Text style={styles.infoLabel}>{label}:</Text>
+    <Text style={[styles.infoValue, isPlot && styles.plotValue]}>{value}</Text>
+  </View>
+);
+
+const BackButton = ({ onPress }) => (
+  <TouchableOpacity style={styles.backButtonContainer} onPress={onPress}>
+    <Ionicons name="arrow-back" size={20} color="white" style={styles.backButton} />
+  </TouchableOpacity>
+);
 
 export default function DetailScreen({ route, navigation }) {
   const { imdbID } = route.params;
@@ -56,23 +37,17 @@ export default function DetailScreen({ route, navigation }) {
   const [error, setError] = useState(null);
 
   const scrollX = useSharedValue(0);
-  const imageOpacity = useSharedValue(0);
-  const imageScale = useSharedValue(0.8);
-  const imageTranslateX = useSharedValue(-50);
+  const imageAnimations = {
+    opacity: useSharedValue(0),
+    scale: useSharedValue(0.8),
+    translateX: useSharedValue(-50),
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const itemDetail = await FetchDetail(imdbID);
-        setData(itemDetail);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    FetchDetail(imdbID)
+      .then(setData)
+      .catch(setError)
+      .finally(() => setLoading(false));
   }, []);
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -81,151 +56,73 @@ export default function DetailScreen({ route, navigation }) {
     },
   });
 
-  const imageAnimatedStyle = useAnimatedStyle(() => {
-    const scale = interpolate(scrollX.value, [0, width], [1, 0.8], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
+  const imageStyle = useAnimatedStyle(() => ({
+    opacity: imageAnimations.opacity.value,
+    transform: [
+      { scale: imageAnimations.scale.value },
+      { translateX: imageAnimations.translateX.value },
+    ],
+  }));
 
-    const translateX = interpolate(scrollX.value, [0, width], [0, -50], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-
-    return {
-      opacity: imageOpacity.value,
-      transform: [
-        { scale: imageScale.value },
-        { translateX: imageTranslateX.value },
-      ],
-    };
-  });
+  const contentStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: interpolate(scrollX.value, [0, width], [width, 0], "clamp") },
+      { scale: interpolate(scrollX.value, [0, width], [0.8, 1], "clamp") },
+    ],
+    opacity: interpolate(scrollX.value, [width * 0.7, width], [0, 1], "clamp"),
+  }));
 
   const handleImageLoad = () => {
-    // Sequence of animations
-    imageOpacity.value = withTiming(1, { duration: 1000 });
-    imageScale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 100,
-    });
-    imageTranslateX.value = withSpring(0, {
-      damping: 15,
-      stiffness: 100,
-    });
+    imageAnimations.opacity.value = withTiming(1, { duration: 1000 });
+    imageAnimations.scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+    imageAnimations.translateX.value = withSpring(0, { damping: 15, stiffness: 100 });
   };
 
-  const contentAnimatedStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(scrollX.value, [0, width], [width, 0], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-
-    const scale = interpolate(scrollX.value, [0, width], [0.8, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-
-    const opacity = interpolate(scrollX.value, [width * 0.7, width], [0, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-
-    return {
-      transform: [{ translateX }, { scale }],
-      opacity,
-    };
-  });
+  if (error) return <Text style={styles.errorText}>Error loading movie details</Text>;
+  if (loading) return <LoadingScreen num={2} />;
 
   const infoArray = [
-    { label: "Title", value: data.Title },
-    { label: "Year", value: data.Year },
-    { label: "Genre", value: data.Genre },
-    { label: "Rating", value: data.Rated },
-    { label: "IMDb Rating", value: data.imdbRating },
-    { label: "Released", value: data.Released },
-    { label: "Director", value: data.Director },
-    { label: "Writer", value: data.Writer },
-    { label: "Actors", value: data.Actors },
-    { label: "Awards", value: data.Awards },
-    { label: "Country", value: data.Country },
-    { label: "Language", value: data.Language },
-    { label: "Plot", value: data.Plot },
-  ];
-
-  const renderInfo = ({ item }) => (
-    <View
-      style={[
-        styles.infoContainer,
-        item.label === "Plot" && styles.plotContainer,
-      ]}
-    >
-      <Text style={styles.infoLabel}>{item.label}:</Text>
-      <Text
-        style={[styles.infoValue, item.label === "Plot" && styles.plotValue]}
-      >
-        {item.value}
-      </Text>
-    </View>
-  );
-
-  const renderDots = () => (
-    <View style={styles.dotsContainer}>
-      {[0, 1].map((index) => (
-        <Dot key={index} index={index} scrollX={scrollX} />
-      ))}
-    </View>
-  );
-
-  if (error)
-    return <Text style={styles.errorText}>Error loading movie details</Text>;
+    "Title", "Year", "Genre", "Rated", "imdbRating", "Released",
+    "Director", "Writer", "Actors", "Awards", "Country", "Language", "Plot"
+  ].map(label => ({ label, value: data[label] }));
 
   return (
     <View style={styles.container}>
-      <View style={styles.backButtonContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons
-            name="arrow-back"
-            size={20}
-            color="white"
-            style={styles.backButton}
+      <BackButton onPress={() => navigation.goBack()} />
+      <AnimatedScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        <View style={styles.card}>
+          <Animated.Image
+            source={{ uri: data.Poster }}
+            style={[styles.poster, imageStyle]}
+            resizeMode="cover"
+            onLoadEnd={handleImageLoad}
           />
-        </TouchableOpacity>
+        </View>
+
+        <Animated.View style={[styles.card, contentStyle]}>
+          <FlatList
+            style={styles.detailContainer}
+            data={infoArray}
+            renderItem={({ item }) => (
+              <MovieInfo label={item.label} value={item.value} isPlot={item.label === "Plot"} />
+            )}
+            keyExtractor={item => item.label}
+            ListHeaderComponent={<Text style={styles.title}>{data.Title}</Text>}
+          />
+        </Animated.View>
+      </AnimatedScrollView>
+
+      <View style={styles.dotsContainer}>
+        {[0, 1].map(index => (
+          <Dot key={index} index={index} scrollX={scrollX} />
+        ))}
       </View>
-
-      {loading ? (
-        <LoadingScreen num={2} />
-      ) : (
-        <AnimatedScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-        >
-          <View style={styles.card}>
-            <Animated.Image
-              source={{ uri: data.Poster }}
-              style={[styles.poster, imageAnimatedStyle]}
-              resizeMode="cover"
-              onLoadEnd={handleImageLoad}
-            />
-          </View>
-
-          <Animated.View style={[styles.card, contentAnimatedStyle]}>
-            <View style={styles.detailContainer}>
-              <FlatList
-                data={infoArray}
-                renderItem={renderInfo}
-                keyExtractor={(item) => item.label}
-                ListHeaderComponent={
-                  <Text style={styles.title}>{data.Title}</Text>
-                }
-              />
-            </View>
-          </Animated.View>
-        </AnimatedScrollView>
-      )}
-      {renderDots()}
     </View>
   );
 }
@@ -251,7 +148,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   card: {
-    width: width,
+    width,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -262,7 +159,7 @@ const styles = StyleSheet.create({
     aspectRatio: 2 / 3,
   },
   detailContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#fff",
     borderRadius: 10,
     margin: 10,
     padding: 15,
