@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming, withSpring, interpolate } from "react-native-reanimated";
 import { FetchDetail } from "../api";
 import LoadingScreen from "../components/loadingScreen";
+import MovieInfo from "../components/movieInfo";
 
 const { width } = Dimensions.get("window");
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
@@ -16,13 +17,6 @@ const Dot = ({ index, scrollX }) => {
 
   return <Animated.View style={[styles.dot, dotStyle]} />;
 };
-
-const MovieInfo = ({ label, value, isPlot }) => (
-  <View style={[styles.infoContainer, isPlot && styles.plotContainer]}>
-    <Text style={styles.infoLabel}>{label}:</Text>
-    <Text style={[styles.infoValue, isPlot && styles.plotValue]}>{value}</Text>
-  </View>
-);
 
 const BackButton = ({ onPress }) => (
   <TouchableOpacity style={styles.backButtonContainer} onPress={onPress}>
@@ -109,8 +103,8 @@ export default function DetailScreen({ route, navigation }) {
           <FlatList
             style={styles.detailContainer}
             data={infoArray}
-            renderItem={({ item }) => (
-              <MovieInfo label={item.label} value={item.value} isPlot={item.label === "Plot"} />
+            renderItem={({ item, index}) => (
+              <MovieInfo label={item.label} value={item.value} isPlot={item.label === "Plot"} index={index} />
             )}
             keyExtractor={item => item.label}
             ListHeaderComponent={<Text style={styles.title}>{data.Title}</Text>}
