@@ -1,5 +1,10 @@
 import React from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  useWindowDimensions,
+} from "react-native";
 import { Skeleton } from "moti/skeleton";
 
 const SkeletonCommonProps = {
@@ -13,16 +18,75 @@ const SkeletonCommonProps = {
   },
 };
 
-const LoadingScreen = () => {
+const { height } = Dimensions.get("window");
+
+const LoadingScreen = ({ num }) => {
   const skeletonArray = new Array(9).fill(0);
 
   return (
     <View style={styles.container}>
-      {skeletonArray.map((_, index) => (
-        <View key={index} style={styles.skeletonItem}>
-          <Skeleton show height={260} width={"100%"} {...SkeletonCommonProps} />
+      {num === 2 ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: "100%",
+              height: height * 0.7,
+              marginBottom: 10,
+              backgroundColor: "#fff",
+              shadowColor: "#000",
+              shadowOpacity: 0.2,
+              shadowRadius: 5,
+              shadowOffset: { width: 0, height: 3 },
+              elevation: 5,
+              borderRadius: 15,
+              overflow: "hidden",
+            }}
+          >
+            <Skeleton
+              show
+              height={height * 0.7}
+              width="100%"
+              {...SkeletonCommonProps}
+            />
+          </View>
+          <View
+            style={{
+              backgroundColor: "#fff",
+              shadowColor: "#000",
+              shadowOpacity: 0.2,
+              shadowRadius: 5,
+              shadowOffset: { width: 0, height: 3 },
+              elevation: 5,
+              borderRadius: 15,
+              overflow: "hidden",
+            }}
+          >
+            <Skeleton
+              show
+              height={height * 0.3}
+              width="100%"
+              {...SkeletonCommonProps}
+            />
+          </View>
         </View>
-      ))}
+      ) : (
+        skeletonArray.map((_, index) => (
+          <View key={index} style={styles.skeletonItem}>
+            <Skeleton
+              show
+              height={260}
+              width={"100%"}
+              {...SkeletonCommonProps}
+            />
+          </View>
+        ))
+      )}
     </View>
   );
 };

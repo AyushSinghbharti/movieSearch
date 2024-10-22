@@ -70,9 +70,13 @@ export default function MovieList({ navigation }) {
         />
       </View>
       {isLoading || loading ? (
-        <LoadingScreen />
+        <LoadingScreen num={1} />
       ) : !result ? (
-        <Text>No Movie Found</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text>No Movie Found!!!</Text>
+        </View>
       ) : (
         <Animated.FlatList
           key={screenKey}
@@ -84,7 +88,7 @@ export default function MovieList({ navigation }) {
               item={item}
               numColumns={numColumns}
               navigation={navigation}
-              index = {index}
+              index={index}
             />
           )}
         />
